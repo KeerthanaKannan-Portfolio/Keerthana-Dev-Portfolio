@@ -1,8 +1,11 @@
 package com.banking;
 
+import java.time.LocalDate;
+
 import com.banking.model.Account;
 import com.banking.model.SavingsAccount;
 import com.banking.model.CheckingAccount;
+import com.banking.model.FixedDepositAccount;
 
 public class Main {
 
@@ -28,5 +31,19 @@ monish.withdraw(1);        // Balance: -5001 ❌ exceeds limit — should fail
         System.out.println();
         keerthana.printStatement();
         monish.printStatement();
+
+        // Fixed Deposit — matures 1 year from now
+Account fd = new FixedDepositAccount(
+        1003,
+        "Keerthana",
+        50000.00,
+        LocalDate.now().plusYears(1),  // maturity = 1 year from today
+        6.5
+);
+
+System.out.println("===== Fixed Deposit Account =====");
+fd.deposit(1000);          // should work
+fd.withdraw(5000);         // should fail — not matured yet
+fd.printStatement();
     }
 }

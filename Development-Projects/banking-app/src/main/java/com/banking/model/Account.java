@@ -16,7 +16,7 @@ public class Account {
 
     private final int accountId;
     private final String accountHolderName;
-    private double balance;
+    protected double balance;
     private final String accountType;
 
     // Constructor — the only way to create a valid Account

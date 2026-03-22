@@ -1,22 +1,32 @@
 package com.banking;
+
 import com.banking.model.Account;
-    public class Main {
+import com.banking.model.SavingsAccount;
+import com.banking.model.CheckingAccount;
+
+public class Main {
+
     public static void main(String[] args) {
-        System.out.println("Banking Management System - Started");
 
-        Account keerthana=new Account(001,"Keerthana",1000.00,"Savings");
-        keerthana.getBalance();
-        keerthana.deposit(500.00);
-        keerthana.withdraw(200.00);
+        // Parent type reference — Child object
+        // This is Polymorphism
+        Account keerthana = new SavingsAccount(1001, "Keerthana", 5000.00);
+        Account monish    = new CheckingAccount(1002, "Monish", 2000.00);
+
+        System.out.println("===== Savings Account =====");
+        keerthana.deposit(500);
+        keerthana.withdraw(4200);  // fails — minimum balance rule
+        keerthana.withdraw(1000);  // succeeds
+
+        System.out.println();
+       System.out.println("===== Checking Account =====");
+monish.deposit(1000);
+monish.withdraw(6000);     // Balance: -3000 ✅ within limit
+monish.withdraw(2000);     // Balance: -5000 ✅ exactly at limit
+monish.withdraw(1);        // Balance: -5001 ❌ exceeds limit — should fail
+
+        System.out.println();
         keerthana.printStatement();
-
-        Account monish = new Account(002,"Monish",2000.00,"Checking");
-        monish.getBalance();
-        monish.deposit(1000.00);
-        monish.withdraw(500.00);
         monish.printStatement();
-        
-        keerthana.transferTo(monish, 100);
     }
 }
-    

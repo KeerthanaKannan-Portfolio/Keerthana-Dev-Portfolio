@@ -1,6 +1,5 @@
 package com.banking.service;
 
-import com.banking.exceptions.AccountNotFoundException;
 import com.banking.model.Account;
 import com.banking.repository.AccountRepository;
 

@@ -1,65 +1,78 @@
 package com.banking;
 
-import com.banking.model.Account;
-import com.banking.model.SavingsAccount;
-import com.banking.model.CheckingAccount;
-import com.banking.model.FixedDepositAccount;
+import com.banking.exceptions.AccountNotFoundException;
 import com.banking.exceptions.InsufficientFundsException;
 import com.banking.exceptions.InvalidAmountException;
 import com.banking.exceptions.MinimumBalanceException;
-import com.banking.exceptions.MaturityDateException;
+import com.banking.model.Account;
+import com.banking.model.CheckingAccount;
+import com.banking.model.FixedDepositAccount;
+import com.banking.model.SavingsAccount;
+import com.banking.repository.AccountRepository;
+import com.banking.repository.InMemoryAccountRepository;
+import com.banking.service.AccountService;
+
 import java.time.LocalDate;
+import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
 
-        Account keerthana = new SavingsAccount(1001, "Keerthana", 5000.00);
-        Account monish    = new CheckingAccount(1002, "Monish", 2000.00);
-        Account fd        = new FixedDepositAccount(
-                                1003, "Keerthana", 50000.00,
-                                LocalDate.now().plusYears(1), 6.5);
+        // Wire up service and repository
+       AccountRepository repository = new InMemoryAccountRepository();
+       AccountService service = new AccountService(repository);
+  
+        // Open accounts
+        System.out.println("===== Opening Accounts =====");
+        service.openAccount(new SavingsAccount(1001, "Keerthana", 5000.00));
+        service.openAccount(new CheckingAccount(1002, "Monish", 2000.00));
+        service.openAccount(new FixedDepositAccount(
+                1003, "Priya", 50000.00,
+                LocalDate.now().plusYears(1), 6.5));
 
-        // Test InvalidAmountException
-        System.out.println("===== Test Invalid Amount =====");
+        // Deposit
+        System.out.println("\n===== Deposits =====");
         try {
-            keerthana.deposit(-500);
+            service.deposit(1001, 1500);
+            service.deposit(1002, 1000);
         } catch (InvalidAmountException e) {
             System.out.println("[ERROR] " + e.getMessage());
         }
 
-        // Test MinimumBalanceException
-        System.out.println("\n===== Test Minimum Balance =====");
+        // Withdraw
+        System.out.println("\n===== Withdrawals =====");
         try {
-            keerthana.withdraw(4500);
-        } catch (MinimumBalanceException e) {
+            service.withdraw(1001, 2000);
+            service.withdraw(1002, 500);
+        } catch (MinimumBalanceException | InsufficientFundsException e) {
             System.out.println("[ERROR] " + e.getMessage());
         }
 
-        // Test InsufficientFundsException
-        System.out.println("\n===== Test Insufficient Funds =====");
+        // Transfer
+        System.out.println("\n===== Transfer =====");
         try {
-            monish.withdraw(9000);
-        } catch (InsufficientFundsException e) {
+            service.transfer(1001, 1002, 1000);
+        } catch (InsufficientFundsException | MinimumBalanceException e) {
             System.out.println("[ERROR] " + e.getMessage());
         }
 
-        // Test MaturityDateException
-        System.out.println("\n===== Test Maturity Date =====");
+        // Account not found
+        System.out.println("\n===== Account Not Found =====");
         try {
-            fd.withdraw(5000);
-        } catch (MaturityDateException e) {
+            service.deposit(9999, 500);
+        } catch (AccountNotFoundException e) {
             System.out.println("[ERROR] " + e.getMessage());
         }
 
-        // Test successful operations
-        System.out.println("\n===== Successful Operations =====");
-        try {
-            keerthana.deposit(1000);
-            keerthana.withdraw(2000);
-            keerthana.printStatement();
-        } catch (InvalidAmountException | InsufficientFundsException e) {
-            System.out.println("[ERROR] " + e.getMessage());
+        // Print all statements
+        System.out.println("\n===== All Account Statements =====");
+        List<Account> accounts = service.getAllAccounts();
+        for (Account account : accounts) {
+            account.printStatement();
         }
+
+        // Total accounts
+        System.out.println("Total Accounts: " + repository.count());
     }
 }

@@ -13,7 +13,7 @@ public class SavingsAccount extends Account {
     }
 
     @Override
-    public void withdraw(double amount) {
+    public synchronized  void withdraw(double amount) {
         if (amount <= 0) {
             throw new InvalidAmountException(amount);
         }

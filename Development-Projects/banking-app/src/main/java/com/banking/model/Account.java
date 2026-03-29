@@ -1,5 +1,6 @@
 package com.banking.model;
 
+import com.banking.exceptions.InsufficientFundsException;
 import com.banking.exceptions.InvalidAmountException;
 
 /**
@@ -28,9 +29,10 @@ public abstract class Account {
         this.accountType = accountType;
     }
 
+   
     // Concrete method — same for ALL account types
     // No need to override in child classes
-    public void deposit(double amount) {
+    public synchronized void deposit(double amount) {
         if (amount <= 0) {
             throw new InvalidAmountException(amount);
         }
@@ -55,7 +57,27 @@ public abstract class Account {
         this.withdraw(amount);
         target.deposit(amount);
     }
-
+/**
+ * UNSAFE withdraw — demonstrates race condition.
+ * Never use this in production!
+ */
+public void unsafeWithdraw(double amount) {
+    if (amount <= 0) {
+        throw new InvalidAmountException(amount);
+    }
+    if (amount > this.balance) {
+        throw new InsufficientFundsException(amount - this.balance);
+    }
+    // Simulate processing delay — makes race condition visible
+    try {
+        Thread.sleep(100); // 100ms delay
+    } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+    }
+    this.balance -= amount;
+    System.out.printf("[Thread: %s] Withdrawn %.2f | Balance: %.2f%n",
+            Thread.currentThread().getName(), amount, balance);
+}
     // Concrete method — base statement
     // Child classes can override to add extra info (like FixedDeposit does)
     public void printStatement() {

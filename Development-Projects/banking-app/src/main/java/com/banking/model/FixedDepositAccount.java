@@ -37,7 +37,7 @@ public class FixedDepositAccount extends Account {
      *  - FD closes after withdrawal
      */
     @Override
-    public void withdraw(double amount) {
+    public synchronized  void withdraw(double amount) {
 
         // Rule 1 — FD already closed
         if (isClosed) {

@@ -35,14 +35,19 @@ public abstract class Account {
     /**
      * Logs transaction to file and adds to in-memory history.
      */
-    protected void logTransaction(String type, double amount) {
-        Transaction transaction =
-                new Transaction(accountId, type, amount, balance);
-        transactionHistory.add(transaction);
-        if (logger != null) {
-            logger.log(transaction);
-        }
+   protected void logTransaction(String type, double amount) {
+    // Using Builder pattern ✅
+    Transaction transaction = new Transaction.Builder(
+            accountId, type, amount, balance)
+            .referenceNumber("REF-" + System.currentTimeMillis())
+            .remarks("Processed by " + Thread.currentThread().getName())
+            .build();
+
+    transactionHistory.add(transaction);
+    if (logger != null) {
+        logger.log(transaction);
     }
+}
     // Abstract class CAN have constructor
     // Used by child classes via super()
     public Account(int accountId, String accountHolderName,

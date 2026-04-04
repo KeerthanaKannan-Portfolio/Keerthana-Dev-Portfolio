@@ -13,6 +13,7 @@ import com.banking.repository.InMemoryAccountRepository;
 import com.banking.service.AccountService;
 import com.banking.thread.SafeWithdrawalTask;
 import com.banking.thread.WithdrawalTask;
+import com.banking.util.TransactionLogger;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -80,8 +81,8 @@ public class Main {
         // // Total accounts
         // System.out.println("Total Accounts: " + repository.count());
 
-         service.openAccount(new SavingsAccount(1001, "Keerthana", 5000.00));
-        service.openAccount(new CheckingAccount(1002, "Monish", 2000.00));
+        //  service.openAccount(new SavingsAccount(1001, "Keerthana", 5000.00));
+        // service.openAccount(new CheckingAccount(1002, "Monish", 2000.00));
 
 //         // ===== Phase 4 — Race Condition Demo =====
 //         System.out.println("===== UNSAFE — Race Condition Demo =====");
@@ -122,29 +123,65 @@ public class Main {
 // }
 
 //         System.out.println("SAFE Final Balance: " + safeAccount.getBalance());
-System.out.println("\n===== Thread Pool Demo =====");
-Account poolAccount = new SavingsAccount(3001, "ThreadPool-Test", 50000.00);
+// System.out.println("\n===== Thread Pool Demo =====");
+// Account poolAccount = new SavingsAccount(3001, "ThreadPool-Test", 50000.00);
 
-// Create thread pool with 5 threads
-ExecutorService threadPool = Executors.newFixedThreadPool(5);
+// // Create thread pool with 5 threads
+// ExecutorService threadPool = Executors.newFixedThreadPool(5);
 
-// Submit 10 withdrawal tasks
-for (int i = 1; i <= 10; i++) {
-    threadPool.submit(new SafeWithdrawalTask(poolAccount, 1000));
+// // Submit 10 withdrawal tasks
+// for (int i = 1; i <= 10; i++) {
+//     threadPool.submit(new SafeWithdrawalTask(poolAccount, 1000));
+// }
+
+// // Shutdown and wait
+// threadPool.shutdown();
+// try {
+//     if (!threadPool.awaitTermination(1, TimeUnit.MINUTES)) {
+//         threadPool.shutdownNow();
+//     }
+// } catch (InterruptedException e) {
+//     threadPool.shutdownNow();
+//     Thread.currentThread().interrupt();
+// }
+
+// System.out.println("Final Balance after 10 withdrawals: "
+//         + poolAccount.getBalance());
+//     }
+// Setup logger
+        TransactionLogger logger =
+                new TransactionLogger("transactions.log");
+
+        Account keerthana = new SavingsAccount(1001, "Keerthana", 5000.00);
+        Account monish    = new CheckingAccount(1002, "Monish", 2000.00);
+
+        // Inject logger into accounts
+        keerthana.setLogger(logger);
+        monish.setLogger(logger);
+
+        service.openAccount(keerthana);
+        service.openAccount(monish);
+
+        // Perform transactions
+        System.out.println("===== Transactions =====");
+        service.deposit(1001, 1500);
+        service.withdraw(1001, 2000);
+        service.deposit(1002, 1000);
+        service.transfer(1001, 1002, 500);
+
+        // Print in-memory history
+        System.out.println();
+        keerthana.printTransactionHistory();
+        System.out.println();
+        monish.printTransactionHistory();
+
+        // Read from log file
+        System.out.println();
+        logger.printAll();
+
+        // Read specific account logs
+        System.out.println("\n===== Keerthana's File Logs =====");
+        logger.readByAccountId(1001)
+              .forEach(System.out::println);
 }
-
-// Shutdown and wait
-threadPool.shutdown();
-try {
-    if (!threadPool.awaitTermination(1, TimeUnit.MINUTES)) {
-        threadPool.shutdownNow();
-    }
-} catch (InterruptedException e) {
-    threadPool.shutdownNow();
-    Thread.currentThread().interrupt();
-}
-
-System.out.println("Final Balance after 10 withdrawals: "
-        + poolAccount.getBalance());
-    }
 }

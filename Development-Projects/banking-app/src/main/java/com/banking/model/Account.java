@@ -1,7 +1,10 @@
 package com.banking.model;
-
+import com.banking.model.Transaction;
+import com.banking.util.TransactionLogger;
 import com.banking.exceptions.InsufficientFundsException;
 import com.banking.exceptions.InvalidAmountException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Abstract base class for all bank accounts.
@@ -19,6 +22,27 @@ public abstract class Account {
     protected double balance;
     private final String accountType;
 
+    // In-memory transaction history
+    private final List<Transaction> transactionHistory = new ArrayList<>();
+
+    // Logger — injected from outside
+    private TransactionLogger logger;
+ // Inject logger from outside
+    public void setLogger(TransactionLogger logger) {
+        this.logger = logger;
+    }
+
+    /**
+     * Logs transaction to file and adds to in-memory history.
+     */
+    protected void logTransaction(String type, double amount) {
+        Transaction transaction =
+                new Transaction(accountId, type, amount, balance);
+        transactionHistory.add(transaction);
+        if (logger != null) {
+            logger.log(transaction);
+        }
+    }
     // Abstract class CAN have constructor
     // Used by child classes via super()
     public Account(int accountId, String accountHolderName,
@@ -37,6 +61,7 @@ public abstract class Account {
             throw new InvalidAmountException(amount);
         }
         this.balance += amount;
+         logTransaction("DEPOSIT", amount);
         System.out.printf("[SUCCESS] Deposited %.2f | New Balance: %.2f%n",
                 amount, balance);
     }
@@ -78,6 +103,15 @@ public void unsafeWithdraw(double amount) {
     System.out.printf("[Thread: %s] Withdrawn %.2f | Balance: %.2f%n",
             Thread.currentThread().getName(), amount, balance);
 }
+public void printTransactionHistory() {
+        System.out.println("===== Transaction History [A/C: "
+                + accountId + "] =====");
+        if (transactionHistory.isEmpty()) {
+            System.out.println("No transactions found.");
+            return;
+        }
+        transactionHistory.forEach(System.out::println);
+    }
     // Concrete method — base statement
     // Child classes can override to add extra info (like FixedDeposit does)
     public void printStatement() {

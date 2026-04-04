@@ -62,6 +62,7 @@ public class FixedDepositAccount extends Account {
         // All rules passed — close the FD
         this.balance = 0;
         this.isClosed = true;
+        logTransaction("WITHDRAWAL", amount);
         System.out.printf("[SUCCESS] Fixed Deposit closed." +
                 " Amount %.2f withdrawn successfully.%n", amount);
     }

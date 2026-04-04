@@ -21,6 +21,7 @@ public class SavingsAccount extends Account {
             throw new MinimumBalanceException(MINIMUM_BALANCE, this.balance);
         }
         this.balance -= amount;
+        logTransaction("WITHDRAWAL", amount);
         System.out.printf("[SUCCESS] Withdrawn %.2f | New Balance: %.2f%n",
                 amount, balance);
     }

@@ -1,8 +1,6 @@
 package com.banking.exceptions;
 
-/**
- * Thrown when a transaction amount is zero or negative.
- */
+
 public class InvalidAmountException extends RuntimeException {
 
     private final double amount;

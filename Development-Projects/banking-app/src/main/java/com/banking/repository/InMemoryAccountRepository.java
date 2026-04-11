@@ -8,11 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * In-memory implementation of AccountRepository.
- * Data lives in RAM — lost on restart.
- * Will be replaced by MySQLAccountRepository in Phase 8.
- */
 public class InMemoryAccountRepository implements AccountRepository {
 
     private final Map<Integer, Account> accountStore = new HashMap<>();

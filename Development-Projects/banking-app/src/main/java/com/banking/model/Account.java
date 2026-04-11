@@ -1,20 +1,13 @@
 package com.banking.model;
 import com.banking.model.Transaction;
+import com.banking.repository.MySQLTransactionRepository;
 import com.banking.util.TransactionLogger;
 import com.banking.exceptions.InsufficientFundsException;
 import com.banking.exceptions.InvalidAmountException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Abstract base class for all bank accounts.
- *
- * Why abstract?
- *  - A plain "Account" doesn't exist in real banking
- *  - Always a SavingsAccount, CheckingAccount or FixedDepositAccount
- *  - withdraw() is abstract — each account type has its own rule
- *  - deposit() is concrete — same for all account types
- */
+
 public abstract class Account {
 
     private final int accountId;
@@ -22,34 +15,41 @@ public abstract class Account {
     protected double balance;
     private final String accountType;
 
-    // In-memory transaction history
+private MySQLTransactionRepository transactionRepository;
+public void setTransactionRepository(
+        MySQLTransactionRepository transactionRepository) {
+    this.transactionRepository = transactionRepository;
+}
+    
     private final List<Transaction> transactionHistory = new ArrayList<>();
 
-    // Logger — injected from outside
+  
     private TransactionLogger logger;
- // Inject logger from outside
+
     public void setLogger(TransactionLogger logger) {
         this.logger = logger;
     }
-
-    /**
-     * Logs transaction to file and adds to in-memory history.
-     */
-   protected void logTransaction(String type, double amount) {
-    // Using Builder pattern ✅
+protected void logTransaction(String type, double amount) {
     Transaction transaction = new Transaction.Builder(
             accountId, type, amount, balance)
             .referenceNumber("REF-" + System.currentTimeMillis())
             .remarks("Processed by " + Thread.currentThread().getName())
             .build();
 
+   
     transactionHistory.add(transaction);
+
+    
     if (logger != null) {
         logger.log(transaction);
     }
+
+    
+    if (transactionRepository != null) {
+        transactionRepository.save(transaction);
+    }
 }
-    // Abstract class CAN have constructor
-    // Used by child classes via super()
+   
     public Account(int accountId, String accountHolderName,
                    double initialBalance, String accountType) {
         this.accountId = accountId;
@@ -59,8 +59,7 @@ public abstract class Account {
     }
 
    
-    // Concrete method — same for ALL account types
-    // No need to override in child classes
+   
     public synchronized void deposit(double amount) {
         if (amount <= 0) {
             throw new InvalidAmountException(amount);
@@ -71,13 +70,10 @@ public abstract class Account {
                 amount, balance);
     }
 
-    // Abstract method — every child MUST implement their own rule
-    // SavingsAccount  → minimum balance rule
-    // CheckingAccount → overdraft rule
-    // FixedDeposit    → maturity date rule
+   
     public abstract void withdraw(double amount);
 
-    // Concrete method — same for ALL account types
+
     public void transferTo(Account target, double amount) {
         if (target == null) {
             throw new IllegalArgumentException("Target account cannot be null.");
@@ -87,10 +83,7 @@ public abstract class Account {
         this.withdraw(amount);
         target.deposit(amount);
     }
-/**
- * UNSAFE withdraw — demonstrates race condition.
- * Never use this in production!
- */
+
 public void unsafeWithdraw(double amount) {
     if (amount <= 0) {
         throw new InvalidAmountException(amount);
@@ -98,9 +91,9 @@ public void unsafeWithdraw(double amount) {
     if (amount > this.balance) {
         throw new InsufficientFundsException(amount - this.balance);
     }
-    // Simulate processing delay — makes race condition visible
+    
     try {
-        Thread.sleep(100); // 100ms delay
+        Thread.sleep(100); 
     } catch (InterruptedException e) {
         Thread.currentThread().interrupt();
     }
@@ -117,8 +110,7 @@ public void printTransactionHistory() {
         }
         transactionHistory.forEach(System.out::println);
     }
-    // Concrete method — base statement
-    // Child classes can override to add extra info (like FixedDeposit does)
+  
     public void printStatement() {
         System.out.println("-----------------------------------");
         System.out.printf(" Statement for %s [A/C: %d]%n",

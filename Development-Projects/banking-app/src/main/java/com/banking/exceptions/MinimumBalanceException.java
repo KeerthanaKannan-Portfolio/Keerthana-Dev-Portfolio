@@ -1,8 +1,6 @@
 package com.banking.exceptions;
 
-/**
- * Thrown when a withdrawal violates minimum balance requirement.
- */
+
 public class MinimumBalanceException extends RuntimeException {
 
     private final double minimumBalance;

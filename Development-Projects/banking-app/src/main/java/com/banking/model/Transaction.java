@@ -3,9 +3,6 @@ package com.banking.model;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-/**
- * Transaction with Builder pattern for flexible construction.
- */
 public class Transaction {
 
     private final int accountId;
@@ -13,13 +10,13 @@ public class Transaction {
     private final double amount;
     private final double balanceAfter;
     private final LocalDateTime timestamp;
-    private final String referenceNumber;  // optional
-    private final String remarks;          // optional
+    private final String referenceNumber;  
+    private final String remarks;          
 
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    // Private constructor — only Builder can create Transaction
+   
     private Transaction(Builder builder) {
         this.accountId       = builder.accountId;
         this.type            = builder.type;
@@ -30,23 +27,21 @@ public class Transaction {
         this.remarks         = builder.remarks;
     }
 
-    /**
-     * Builder — constructs Transaction step by step.
-     */
+    
     public static class Builder {
 
-        // Required fields
+       
         private final int accountId;
         private final String type;
         private final double amount;
         private final double balanceAfter;
 
-        // Optional fields — defaults set here
+        
         private LocalDateTime timestamp    = LocalDateTime.now();
         private String referenceNumber     = "N/A";
         private String remarks             = "";
 
-        // Constructor takes only REQUIRED fields
+       
         public Builder(int accountId, String type,
                        double amount, double balanceAfter) {
             this.accountId    = accountId;
@@ -55,10 +50,10 @@ public class Transaction {
             this.balanceAfter = balanceAfter;
         }
 
-        // Optional setters — each returns Builder for chaining
+       
         public Builder timestamp(LocalDateTime timestamp) {
             this.timestamp = timestamp;
-            return this;           // ← returns this for method chaining
+            return this;           
         }
 
         public Builder referenceNumber(String referenceNumber) {
@@ -71,7 +66,7 @@ public class Transaction {
             return this;
         }
 
-        // Terminal method — builds final Transaction
+       
         public Transaction build() {
             return new Transaction(this);
         }

@@ -20,7 +20,7 @@ public class CheckingAccount extends Account {
         if ((this.balance - amount) < -OVERDRAFT_LIMIT) {
             throw new InsufficientFundsException(
                     amount - (this.balance + OVERDRAFT_LIMIT));
-            // shortfall = how much they exceeded overdraft limit
+         
         }
         this.balance -= amount;
         logTransaction("WITHDRAWAL", amount);

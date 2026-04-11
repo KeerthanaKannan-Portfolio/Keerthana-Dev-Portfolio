@@ -1,8 +1,6 @@
 package com.banking.exceptions;
 
-/**
- * Thrown when an account is not found in the repository.
- */
+
 public class AccountNotFoundException extends RuntimeException {
 
     private final int accountId;

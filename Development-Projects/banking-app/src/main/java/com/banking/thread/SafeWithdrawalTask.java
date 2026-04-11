@@ -2,9 +2,7 @@ package com.banking.thread;
 
 import com.banking.model.Account;
 
-/**
- * Simulates a SAFE withdrawal using synchronized account methods.
- */
+
 public class SafeWithdrawalTask implements Runnable {
 
     private final Account account;

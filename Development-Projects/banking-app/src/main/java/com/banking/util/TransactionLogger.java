@@ -10,13 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Handles reading and writing transaction logs to file.
- *
- * Uses BufferedWriter for efficient writing.
- * Uses BufferedReader for efficient reading.
- * append=true ensures existing logs are never overwritten.
- */
 public class TransactionLogger {
 
     private final String logFilePath;
@@ -25,12 +18,8 @@ public class TransactionLogger {
         this.logFilePath = logFilePath;
     }
 
-    /**
-     * Writes a transaction to the log file.
-     * append=true → adds to existing file, never overwrites.
-     */
+    
     public void log(Transaction transaction) {
-        // try-with-resources → auto closes writer even if exception occurs
         try (BufferedWriter writer =
                      new BufferedWriter(new FileWriter(logFilePath, true))) {
             writer.write(transaction.toCsvLine());
@@ -42,10 +31,7 @@ public class TransactionLogger {
         }
     }
 
-    /**
-     * Reads all transactions from log file.
-     * Returns list of raw CSV lines.
-     */
+  
     public List<String> readAll() {
         List<String> logs = new ArrayList<>();
 
@@ -62,9 +48,7 @@ public class TransactionLogger {
         return logs;
     }
 
-    /**
-     * Reads transactions for specific account.
-     */
+    
     public List<String> readByAccountId(int accountId) {
         List<String> logs = new ArrayList<>();
 
@@ -72,7 +56,7 @@ public class TransactionLogger {
                      new BufferedReader(new FileReader(logFilePath))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                // CSV format: timestamp,accountId,type,amount,balance
+              
                 if (line.contains("," + accountId + ",")) {
                     logs.add(line);
                 }
@@ -84,9 +68,7 @@ public class TransactionLogger {
         return logs;
     }
 
-    /**
-     * Prints all transaction logs to console.
-     */
+    
     public void printAll() {
         List<String> logs = readAll();
         if (logs.isEmpty()) {

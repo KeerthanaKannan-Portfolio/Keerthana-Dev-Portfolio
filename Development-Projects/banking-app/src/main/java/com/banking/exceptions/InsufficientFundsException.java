@@ -1,9 +1,6 @@
 package com.banking.exceptions;
 
-/**
- * Thrown when a withdrawal or transfer exceeds available balance.
- * Includes the shortfall amount for reporting purposes.
- */
+
 public class InsufficientFundsException extends RuntimeException {
 
     private final double shortfall;

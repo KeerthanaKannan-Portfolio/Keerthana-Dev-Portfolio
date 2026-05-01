@@ -75,7 +75,7 @@ public class MySQLTransactionRepository {
      * Finds all transactions across all accounts.
      */
     public List<Transaction> findAll() {
-        String sql = "SELECT * FROM transactions ORDER BY created_at DESC";
+        String sql = "SELECT * FROM transactions ORDER BY transaction_id asc";
         List<Transaction> transactions = new ArrayList<>();
 
         try (Connection conn = DatabaseConnection.getConnection();
